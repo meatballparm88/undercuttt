@@ -1,0 +1,377 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GB Undercut Checker — Mobile</title>
+<style>
+
+:root{--bg:#0a0e1a;--card:#111726;--card2:#0d1320;--edge:#1e2941;--edge2:#2a3a5c;--txt:#e6ecf7;--dim:#8a97b1;--red:#ef4444;--redbg:#2a1416;--grn:#22c55e;--grnbg:#0f2418;--amb:#f59e0b;--blu:#3b82f6;--blubg:#0f1d33;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:0 0 72px}
+h1{font-size:18px;margin:0;padding:12px 14px 2px}
+.sub{color:var(--dim);font-size:12.5px;padding:0 14px 10px;margin:0}
+.bar{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:8px;background:rgba(10,14,26,.97);border-bottom:1px solid var(--edge);padding:10px 12px}
+.btn{flex:1 1 46%;display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;background:#16203a;color:var(--txt);border:1px solid #26355a;border-radius:11px;padding:10px 12px;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn.mkt{background:#132a1e;border-color:#1f5136}
+.btn.mine{background:#141f3a;border-color:#27407a}
+.btn.clr{flex:1 1 100%;background:#241419;border-color:#5a2530;color:#f7b3bd}
+.btn input{display:none}
+.err{flex:1 1 100%;color:#9fb0cf;font-size:12.5px;font-weight:600;padding:2px 2px 0;margin:0}
+.summary{flex:1 1 100%;color:var(--dim);font-size:12.5px;text-align:left;padding-top:2px}
+.summary b{color:var(--txt)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px}
+.controls input[type=text]{flex:1 1 100%;background:var(--card2);color:var(--txt);border:1px solid var(--edge);border-radius:9px;padding:11px 12px;font-size:15px;min-height:46px}
+.controls select{flex:1 1 46%;background:var(--card2);color:var(--txt);border:1px solid var(--edge);border-radius:9px;padding:10px;font-size:14px;min-height:46px}
+.chk{flex:1 1 46%;display:flex;align-items:center;gap:8px;color:var(--dim);font-size:13px;padding:8px 4px;min-height:44px;user-select:none}
+.chk input{width:20px;height:20px;accent-color:var(--blu)}
+.empty{margin:12px;border:1px dashed var(--edge);border-radius:14px;padding:34px 18px;text-align:center;color:var(--dim)}
+.empty b{color:var(--txt)}
+.empty .steps{display:block;text-align:left;margin-top:12px;font-size:13.5px;line-height:2}
+#out{padding:0 12px}
+.row{display:block;background:var(--card);border:1px solid var(--edge);border-left:4px solid transparent;border-radius:14px;padding:14px;margin-bottom:11px}
+.row.under{border-left-color:var(--amb)}
+.row.cheap{border-left-color:var(--grn)}
+.who{margin-bottom:9px}
+.who .nm{font-size:18px;font-weight:800;margin-bottom:6px;line-height:1.15}
+.tags{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.tag{font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:6px}
+.pos{background:#132a1e;color:#4ade80}.pos.qb{background:#241a33;color:#c084fc}.pos.wr{background:#12233f;color:#60a5fa}.pos.te{background:#33240f;color:#fbbf24}.pos.rb{background:#132a1e;color:#4ade80}
+.team{color:var(--dim);font-weight:700;font-size:12.5px}
+.mult{background:#3a2f0c;color:#f5c451;border:1px solid #5a4a12}
+.mid{min-width:0}
+.line1{font-size:15.5px;margin-bottom:8px;line-height:1.45}
+.line1 .you{font-weight:700}
+.line1 .vs{color:var(--red);font-weight:800}
+.line1 .who2{color:var(--dim);font-size:13px;display:inline-block}
+.rec{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.3px;padding:5px 11px;border-radius:8px;margin-top:2px}
+.rec.LOWER{background:var(--redbg);color:#fca5a5;border:1px solid #5a2530}
+.rec.KEEP{background:#1a2236;color:#a9b6d4;border:1px solid #2c3a5c}
+.rec.RAISE{background:var(--grnbg);color:#86efac;border:1px solid #276b46}
+.rec.HIGHDEMAND{background:var(--blubg);color:#93c5fd;border:1px solid #2b4d84}
+.exp{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:9px 0}
+.ebox{font-size:12px;font-weight:700;padding:6px 10px;border-radius:8px;display:inline-flex;gap:6px;align-items:center}
+.ebox .d{opacity:.7;font-weight:600}
+.ebox.you{background:#0f2418;color:#7ee2a8;border:1px solid #1f5136}
+.ebox.rival{background:#2a1416;color:#f6a5ad;border:1px solid #5a2530}
+.ebox.rival.ok{background:#0f2418;color:#7ee2a8;border:1px solid #1f5136}
+.season{font-size:11px;font-weight:700;padding:5px 9px;border-radius:8px;background:#241a08;border:1px solid #4a3a12;color:#f4c15a}
+.efirst{font-size:11px;font-weight:800;padding:5px 9px;border-radius:8px;background:#33240f;color:#fbbf24;border:1px solid #5a4212}
+.efirst.rival{background:#2a1416;color:#f6a5ad;border:1px solid #5a2530}
+.vslab{color:var(--dim);font-size:11px;font-weight:700}
+.stat{color:var(--dim);font-size:12.5px;margin-top:4px}
+.stat b{color:#cdd8ee}
+.right{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--edge)}
+.under{font-size:24px;font-weight:800;line-height:1;flex:0 0 auto}
+.under.r{color:var(--red)}.under.g{color:var(--grn)}.under.n{color:var(--dim);font-size:16px}
+.undlbl{color:var(--dim);font-size:11px;flex:1 1 auto}
+.open{flex:1 1 100%;background:#241419;border:1px solid #5a2530;color:#f7b3bd;border-radius:11px;padding:14px;font-weight:800;font-size:15px;cursor:pointer;text-decoration:none;display:flex;gap:6px;align-items:center;justify-content:center;min-height:52px}
+.open:active{transform:scale(.99)}
+.open.g{background:#132a1e;border-color:#1f5136;color:#8ce6ab}
+.mini{flex:1 1 100%;background:#16203a;border:1px solid #26355a;color:#cdd8ee;border-radius:11px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;min-height:48px}
+.detog{color:#9fb0cf;font-size:13.5px;cursor:pointer;padding:12px 0 4px;font-weight:600}
+.comps{margin-top:6px;border-top:1px solid var(--edge);padding-top:6px;display:none}
+.comps.on{display:block}
+.comps table{width:100%;border-collapse:collapse;font-size:13px}
+.comps th{color:var(--dim);text-align:left;font-weight:600;padding:6px 6px;border-bottom:1px solid var(--edge)}
+.comps td{padding:10px 6px;border-bottom:1px solid #16203a}
+.comps .p{font-weight:800}.comps .p.lo{color:#f87171}
+.comps a{color:#93c5fd;text-decoration:none;font-weight:700;padding:8px 4px;display:inline-block}
+@media(max-width:560px){.comps th:nth-child(1),.comps td:nth-child(1),.comps th:nth-child(5),.comps td:nth-child(5){display:none}}
+.money{font-variant-numeric:tabular-nums}
+.foot{color:var(--dim);font-size:11.5px;text-align:center;margin:22px 12px 0;line-height:1.7}
+
+</style></head>
+<body><div class="wrap">
+<h1>🎯 GB Undercut Checker</h1>
+<div class="sub">Import two exports and it cross-references them entirely in your browser — no scraping, no waiting. Matches the <b>exact same card</b> (player · multiplier · overall) and flags where a rival is listed cheaper than you.</div>
+
+<div class="bar">
+  <label class="btn mkt">📥 Import market listings<input type="file" id="fMkt" accept=".txt,.csv,.tsv,text/plain"></label>
+  <label class="btn mine">📥 Import my listings<input type="file" id="fMine" accept=".txt,.csv,.tsv,text/plain"></label>
+  <button class="btn clr" id="bClear">🗑 Clear</button>
+  <span class="err" id="err"></span>
+  <span class="summary" id="summary"></span>
+</div>
+
+<div class="controls" id="controls" style="display:none">
+  <input type="text" id="q" placeholder="search player / team / seller">
+  <select id="sort">
+    <option value="under">Sort: biggest undercut</option>
+    <option value="pct">Sort: biggest % gap</option>
+    <option value="price">Sort: my price (high→low)</option>
+    <option value="comps">Sort: most competitors</option>
+    <option value="exp">Sort: expiring soonest</option>
+    <option value="name">Sort: player A–Z</option>
+  </select>
+  <label class="chk"><input type="checkbox" id="onlyUnder" checked> Only where I'm undercut</label>
+  <label class="chk"><input type="checkbox" id="exactExp"> Require exact expiration</label>
+  <label class="chk"><input type="checkbox" id="matchOverall" checked> Match overall rating</label>
+  <select id="rule">
+    <option value="0.01">Underbid: 1¢ under</option>
+    <option value="0.05">Underbid: 5¢ under</option>
+    <option value="0.10">Underbid: 10¢ under</option>
+    <option value="0.25">Underbid: 25¢ under</option>
+  </select>
+</div>
+
+<div id="out"></div>
+<div class="foot" id="foot"></div>
+</div>
+<script>
+(function(){
+"use strict";
+// localStorage with in-memory fallback (file://, private mode, and sandboxed viewers can block it)
+var MEM={}, PERSIST=false;
+var LS=(function(){try{var t="__ucx_t";window.localStorage.setItem(t,"1");window.localStorage.removeItem(t);PERSIST=true;return window.localStorage;}
+  catch(e){return {getItem:function(k){return (k in MEM)?MEM[k]:null;},setItem:function(k,v){MEM[k]=String(v);},removeItem:function(k){delete MEM[k];}};}})();
+var K_MKT="ucx_mkt", K_MINE="ucx_mine", K_OPT="ucx_opts";
+// imported files live in memory (localStorage has a tiny quota on file:// and can't hold a big market export)
+var STORE={mkt:"",mine:""};
+try{STORE.mkt=LS.getItem(K_MKT)||"";STORE.mine=LS.getItem(K_MINE)||"";}catch(e){}
+var $=function(id){return document.getElementById(id);};
+var GB="https://app.gameblazers.com/marketplace-listing/";
+
+var num=function(x){var n=parseFloat(String(x==null?"":x).replace(/[^0-9.\-]/g,""));return isNaN(n)?null:n;};
+var isUUID=function(s){return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s||"").trim());};
+var isURL=function(s){return /^https?:\/\//i.test(String(s||"").trim());};
+var esc=function(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");};
+var money=function(v){return v==null?"—":"$"+Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});};
+
+// ---- season model (2026 NFL) ----
+var SEA_START=Date.parse("2026-09-09T00:00:00Z"), SEA_REG=Date.parse("2027-01-10T00:00:00Z"), SEA_PO=Date.parse("2027-02-08T00:00:00Z");
+function seasonScore(iso){if(!iso)return null;var t=Date.parse(iso+(iso.length<=10?"T00:00:00Z":""));if(isNaN(t))return null;
+  var reg=Math.max(0,Math.min(1,(Math.min(t,SEA_REG)-SEA_START)/(SEA_REG-SEA_START)));
+  var po=Math.max(0,Math.min(1,(Math.min(t,SEA_PO)-SEA_REG)/(SEA_PO-SEA_REG)));
+  return Math.max(0,Math.min(1,0.85*reg+0.15*po));}
+function expDays(iso){if(!iso)return null;var t=Date.parse(iso+(iso.length<=10?"T00:00:00Z":""));if(isNaN(t))return null;return Math.round((t-Date.now())/86400000);}
+var MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fmtDate(iso){if(!iso)return "no expiry";var d=new Date(iso+(iso.length<=10?"T00:00:00Z":""));if(isNaN(d))return esc(iso);return MO[d.getUTCMonth()]+" "+d.getUTCDate()+" ’"+String(d.getUTCFullYear()).slice(2);}
+
+// ---- parser: gb export schema (player,mult,type,price,exp,pos,overall,listingId,team,,seller) + tolerant fallback ----
+function parseListings(txt){
+  var out=[]; var lines=String(txt||"").replace(/^﻿/,"").split(/\r?\n/);
+  for(var li=0;li<lines.length;li++){
+    var line=lines[li]; if(!line.trim())continue;
+    var delim=line.indexOf("\t")>=0?"\t":","; var f=line.split(delim);
+    for(var i=0;i<f.length;i++)f[i]=(f[i]==null?"":f[i]).trim();
+    var player=f[0];
+    if(!player||!/[a-z]/i.test(player)||/^(player|name|card|athlete)$/i.test(player))continue;
+    // link = first URL, else first UUID
+    var link=""; for(var a=0;a<f.length;a++){if(isURL(f[a])){link=f[a];break;}} if(!link){for(var b=0;b<f.length;b++){if(isUUID(f[b])){link=f[b];break;}}}
+    var mult=num(f[1]), price=num(f[3]), type=(f[2]||""), exp=f[4]||"", pos=f[5]||"", overall=f[6]||"", team=f[8]||"", seller=(f[10]!=null&&f[10]!=="")?f[10]:"";
+    var positional=(mult!=null&&mult>=0.85&&mult<=1.7&&price!=null&&price>=0);
+    if(!positional){
+      mult=null;price=null;type="";exp="";pos="";overall="";team="";seller="";
+      var nums=[];
+      for(var j=1;j<f.length;j++){var c=f[j]; if(!c)continue;
+        if(/^\d{4}-\d{2}-\d{2}/.test(c)){if(!exp)exp=c.slice(0,10);continue;}
+        if(isURL(c)||isUUID(c))continue;
+        var n=num(c); if(n!=null){nums.push(n);continue;}
+        if(/^(listing|expiring|sold|expired|auction|active)$/i.test(c)){if(!type)type=c;continue;}
+        if(!pos&&/^[A-Za-z]{2}$/.test(c)){pos=c;continue;}
+        if(!team&&/^[A-Za-z]{2,4}$/.test(c)&&c===c.toUpperCase()){team=c;continue;}
+        if(!seller&&/[A-Za-z]/.test(c)){seller=c;continue;}
+      }
+      var mi=-1; for(var k=0;k<nums.length;k++){if(nums[k]>=0.85&&nums[k]<=1.7){mult=nums[k];mi=k;break;}}
+      var oi=-1; for(var k2=0;k2<nums.length;k2++){if(k2!==mi&&Math.abs(nums[k2]-Math.round(nums[k2]))<1e-9&&nums[k2]>=20&&nums[k2]<=99){overall=String(Math.round(nums[k2]));oi=k2;break;}}
+      var pc=[]; for(var k3=0;k3<nums.length;k3++){if(k3!==mi&&k3!==oi)pc.push(nums[k3]);}
+      if(pc.length){pc.sort(function(x,y){return y-x;});price=pc[0];}
+    } else {
+      if(isUUID(seller)||isURL(seller))seller="";
+      if(!seller){var last=f[f.length-1]; if(last&&!isUUID(last)&&!isURL(last)&&num(last)==null&&!/^\d{4}-\d{2}-\d{2}/.test(last))seller=last;}
+    }
+    if(mult==null||price==null)continue;
+    out.push({player:player, mult:mult, type:String(type||"").toLowerCase(), price:price,
+      exp:String(exp||"").slice(0,10), pos:String(pos||"").toUpperCase(),
+      overall:String(overall||"").replace(/\D/g,""), link:link,
+      team:String(team||"").toUpperCase(), seller:String(seller||"").trim()});
+  }
+  return out;
+}
+function linkUrl(r){if(!r||!r.link)return "";if(isURL(r.link))return r.link;if(isUUID(r.link))return GB+r.link;return "";}
+
+// ---- options ----
+var MEMOPT=null;
+function getOpts(){if(MEMOPT)return MEMOPT;try{MEMOPT=JSON.parse(LS.getItem(K_OPT)||"{}")||{};}catch(e){MEMOPT={};}return MEMOPT;}
+function setOpt(k,v){var o=getOpts();o[k]=v;MEMOPT=o;try{LS.setItem(K_OPT,JSON.stringify(o));}catch(e){}}
+function opt(k,d){var o=getOpts();return (k in o)?o[k]:d;}
+
+// ---- cross-reference ----
+function build(){
+  var mine=parseListings(STORE.mine||"");
+  var mkt=parseListings(STORE.mkt||"");
+  var matchOverall=opt("matchOverall",true), exactExp=opt("exactExp",false);
+  // who am I: dominant seller in my file
+  var mc={},MEr=""; mine.forEach(function(r){var s=(r.seller||"").toLowerCase();if(s)mc[s]=(mc[s]||0)+1;});
+  Object.keys(mc).forEach(function(s){if(!MEr||mc[s]>mc[MEr])MEr=s;});
+  var idBase=function(r){return r.player.toLowerCase().replace(/\s+/g," ").trim()+"|"+r.mult;};
+  var idx={}; mkt.forEach(function(r){var k=idBase(r);(idx[k]=idx[k]||[]).push(r);});
+  var rows=mine.map(function(m){
+    var comps=(idx[idBase(m)]||[]).filter(function(c){
+      if(matchOverall&&m.overall&&c.overall&&String(m.overall)!==String(c.overall))return false;
+      if(MEr&&(c.seller||"").toLowerCase()===MEr)return false;
+      if(m.link&&c.link&&c.link===m.link)return false;
+      if(exactExp&&(c.exp||"")!==(m.exp||""))return false;
+      return true;
+    }).slice().sort(function(a,b){return a.price-b.price;});
+    var lowest=comps.length?comps[0].price:null;
+    var nBelow=comps.filter(function(c){return c.price<m.price-1e-9;}).length;
+    var gap=lowest!=null?Math.round((m.price-lowest)*100)/100:null;
+    var pct=(lowest!=null&&m.price>0)?Math.round((m.price-lowest)/m.price*1000)/10:null;
+    var rec;
+    if(!comps.length)rec="HIGHDEMAND";
+    else if(m.price>lowest+1e-9)rec="LOWER";
+    else if(m.price<lowest*0.9)rec="RAISE";
+    else rec="KEEP";
+    return {m:m,comps:comps,lowest:lowest,nBelow:nBelow,gap:gap,pct:pct,rec:rec};
+  });
+  return {rows:rows,mine:mine,mkt:mkt,me:MEr,matchOverall:matchOverall};
+}
+
+// ---- render ----
+var LASTMINE=0,LASTMKT=0,EXPANDED={};
+function recLabel(r){return {LOWER:"LOWER PRICE",KEEP:"KEEP PRICE",RAISE:"RAISE PRICE",HIGHDEMAND:"HIGH DEMAND / NO COMPETITION"}[r];}
+function posClass(p){p=(p||"").toLowerCase();return ["qb","wr","te","rb"].indexOf(p)>=0?p:"";}
+
+function card(row){
+  var m=row.m, comps=row.comps, lo=row.lowest, gap=row.gap, rule=+opt("rule",0.01);
+  var under=(lo!=null&&m.price>lo+1e-9);
+  var myDays=expDays(m.exp), sc=seasonScore(m.exp);
+  var seasonPct=sc!=null?Math.round(sc*100):null;
+  var loRow=comps.length?comps[0]:null;
+  var rvDays=loRow?expDays(loRow.exp):null;
+  var youFirst=(under&&myDays!=null&&rvDays!=null&&myDays<rvDays);
+  var rivalFirst=(under&&myDays!=null&&rvDays!=null&&rvDays<myDays);
+  var myUrl=linkUrl(m);
+  // line 1
+  var l1;
+  if(under){l1='<span class="you">You '+money(m.price)+'</span> vs <span class="vs">'+money(lo)+'</span> <span class="who2">('+esc(loRow.seller||"rival")+(comps.length>1?", +"+(comps.length-1):"")+')</span>';}
+  else if(lo!=null){l1='<span class="you">You '+money(m.price)+'</span> <span class="who2">— cheapest; next is '+money(lo)+' ('+esc(loRow.seller||"rival")+', '+comps.length+' listed)</span>';}
+  else {l1='<span class="you">You '+money(m.price)+'</span> <span class="who2">— no competing listings found</span>';}
+  l1+=' <span class="rec '+row.rec+'">'+recLabel(row.rec)+'</span>';
+  // expiry row
+  var expHtml='<span class="ebox you">YOU '+fmtDate(m.exp)+(myDays!=null?' <span class="d">'+myDays+'d</span>':'')+'</span>';
+  if(seasonPct!=null)expHtml+='<span class="season">🏈 '+seasonPct+'% of season</span>';
+  if(loRow){expHtml+='<span class="vslab">vs</span><span class="ebox rival'+(rivalFirst?'':' ')+'">RIVAL '+fmtDate(loRow.exp)+(rvDays!=null?' <span class="d">'+rvDays+'d</span>':'')+'</span>';}
+  if(youFirst)expHtml+='<span class="efirst">⏳ YOU EXPIRE FIRST</span>';
+  else if(rivalFirst)expHtml+='<span class="efirst rival">↯ rival expires first</span>';
+  // stat line
+  var stat="";
+  if(lo!=null){var beat=Math.max(0.01,Math.round((lo-rule)*100)/100);
+    stat='<div class="stat">Lowest rival <b>'+money(lo)+'</b> · you\'re <b>'+money(gap)+'</b> ('+(row.pct!=null?row.pct+'%':'—')+') '+(under?'higher':'lower')+' · <b>'+comps.length+'</b> competing'+(row.nBelow?(' · <b>'+row.nBelow+'</b> under you'):'')+(under?(' · underbid to <b>'+money(beat)+'</b>'):'')+'</div>';}
+  else stat='<div class="stat">No rival is listing this exact card right now.</div>';
+  // right block
+  var right;
+  if(under)right='<div class="under r">-'+money(gap)+'</div><div class="undlbl">under lowest</div>';
+  else if(lo!=null)right='<div class="under g">▲</div><div class="undlbl">you\'re low</div>';
+  else right='<div class="under n">—</div><div class="undlbl">no rivals</div>';
+  var openBtn=myUrl?('<a class="open'+(under?'':' g')+'" href="'+esc(myUrl)+'" target="_blank" rel="noopener">Open mine ↗</a>'):'<span class="undlbl">no link in file</span>';
+  var copyBtn=under?('<button class="mini" data-copy="'+Math.max(0.01,Math.round((lo-rule)*100)/100).toFixed(2)+'">Copy underbid</button>'):'';
+  // competitor detail
+  var det="";
+  if(comps.length){
+    var open=!!EXPANDED[m.link||idKey(m)];
+    det='<div class="detog" data-tog="'+esc(m.link||idKey(m))+'">'+(open?'▾ hide':'▸ show')+' '+comps.length+' competing listing'+(comps.length>1?'s':'')+' (low→high)</div>'+
+      '<div class="comps'+(open?' on':'')+'"><table><tr><th>#</th><th>Price</th><th>Seller</th><th>Expires</th><th>Overall</th><th></th></tr>'+
+      comps.map(function(c,i){var u=linkUrl(c);return '<tr><td>'+(i+1)+'</td><td class="p'+(i===0?' lo':'')+' money">'+money(c.price)+'</td><td>'+esc(c.seller||"—")+'</td><td>'+fmtDate(c.exp)+(expDays(c.exp)!=null?' <span style="color:#5b6b8a">('+expDays(c.exp)+'d)</span>':'')+'</td><td>'+(c.overall||"—")+'</td><td>'+(u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">open ↗</a>':'')+'</td></tr>';}).join("")+
+      '</table></div>';
+  }
+  return '<div class="row'+(under?' under':(lo!=null?' cheap':''))+'">'+
+    '<div class="who"><div class="nm">'+esc(m.player)+'</div><div class="tags">'+
+      (m.pos?'<span class="tag pos '+posClass(m.pos)+'">'+esc(m.pos)+'</span>':'')+
+      (m.team?'<span class="team">'+esc(m.team)+'</span>':'')+
+      '<span class="tag mult">'+(+m.mult)+'x</span>'+
+      (m.overall?'<span class="team">'+esc(m.overall)+' OVR</span>':'')+
+    '</div></div>'+
+    '<div class="mid"><div class="line1">'+l1+'</div><div class="exp">'+expHtml+'</div>'+stat+'</div>'+
+    '<div class="right">'+right+openBtn+copyBtn+'</div>'+
+    det+
+  '</div>';
+}
+function idKey(m){return m.player+"@"+m.mult+"@"+(m.overall||"");}
+
+function render(){
+  var d=build();
+  var out=$("out"), foot=$("foot"), sm=$("summary"), ctl=$("controls");
+  var hasMine=(STORE.mine||"").trim().length>0, hasMkt=(STORE.mkt||"").trim().length>0;
+  // summary
+  var undercutN=d.rows.filter(function(r){return r.lowest!=null&&r.m.price>r.lowest+1e-9;}).length;
+  var exposure=d.rows.reduce(function(s,r){return s+((r.lowest!=null&&r.m.price>r.lowest)?(r.m.price-r.lowest):0);},0);
+  sm.innerHTML=(hasMine||hasMkt)?('<b>'+d.mine.length+'</b> my listings · <b>'+d.mkt.length+'</b> market rows · <b style="color:#f6a5ad">'+undercutN+'</b> undercut · <b>'+money(Math.round(exposure*100)/100)+'</b> total gap'):'';
+  if(!hasMine||!hasMkt){
+    ctl.style.display="none"; foot.innerHTML="";
+    out.innerHTML='<div class="empty">'+
+      '<div style="font-size:34px;margin-bottom:6px">📥📥</div>'+
+      '<b>Import both files to compare.</b>'+
+      '<div class="steps">'+
+        '1. <b>Import market listings</b> — the historical / recent-listings export (.txt) '+(hasMkt?'✅ loaded':'⬜ not loaded')+'<br>'+
+        '2. <b>Import my listings</b> — your active listings export (.txt) '+(hasMine?'✅ loaded':'⬜ not loaded')+'<br>'+
+        '3. See exactly where you\'re undercut, by whom, and by how much.'+
+      '</div>'+
+      '<div style="margin-top:14px;font-size:12px;color:#5b6b8a">Both stay on your computer — nothing is uploaded anywhere.</div>'+
+    '</div>';
+    return;
+  }
+  ctl.style.display="flex";
+  // filter + sort
+  var q=(opt("q","")||"").toLowerCase().trim(), onlyU=opt("onlyUnder",true), sort=opt("sort","under");
+  var list=d.rows.filter(function(r){
+    if(onlyU&&!(r.lowest!=null&&r.m.price>r.lowest+1e-9))return false;
+    if(q){var s=(r.m.player+" "+r.m.team+" "+(r.comps[0]?r.comps[0].seller:"")).toLowerCase();if(s.indexOf(q)<0)return false;}
+    return true;
+  });
+  var S={
+    under:function(a,b){return (b.gap||-1e9)-(a.gap||-1e9);},
+    pct:function(a,b){return (b.pct==null?-1e9:b.pct)-(a.pct==null?-1e9:a.pct);},
+    price:function(a,b){return b.m.price-a.m.price;},
+    comps:function(a,b){return b.comps.length-a.comps.length;},
+    exp:function(a,b){var x=expDays(a.m.exp),y=expDays(b.m.exp);return (x==null?9e9:x)-(y==null?9e9:y);},
+    name:function(a,b){return a.m.player.localeCompare(b.m.player);}
+  };
+  list.sort(S[sort]||S.under);
+  out.innerHTML=list.length?list.map(card).join(""):'<div class="empty"><b>Nothing to show.</b><div class="steps">'+(onlyU?'No card is being undercut with the current match settings. Untick “Only where I\'m undercut” to see every listing, or loosen “Match overall rating” / “Require exact expiration”.':'No listings matched your search.')+'</div></div>';
+  foot.innerHTML='Matched on player · multiplier'+(d.matchOverall?' · overall':'')+(opt("exactExp",false)?' · exact expiration':'')+'. “You” = '+(d.me?esc(d.me):'your file')+'. Prices/links come straight from your two exports.';
+}
+
+// ---- file read ----
+function readFile(input,key){
+  var f=input.files&&input.files[0]; if(!f){return;}
+  var rd=new FileReader();
+  rd.onload=function(ev){
+    try{
+      var txt=ev.target.result;
+      var parsed=parseListings(txt);
+      if(!parsed.length){$("err").textContent="⚠ "+f.name+": couldn't recognize any listings (need player, multiplier, price). Send me one sample row and I'll adjust the parser.";input.value="";return;}
+      if(key===K_MKT)STORE.mkt=txt; else STORE.mine=txt;
+      var saved=false; try{LS.setItem(key,txt);saved=true;}catch(e2){}
+      $("err").textContent="✓ "+f.name+": "+parsed.length+" rows loaded"+(saved?"":" (session only — too large to save between reloads)");
+      input.value=""; render();
+    }catch(e){$("err").textContent="⚠ "+f.name+": "+((e&&e.message)||e);input.value="";}
+  };
+  rd.onerror=function(){$("err").textContent="⚠ Could not read "+f.name;};
+  rd.readAsText(f);
+}
+
+// ---- wiring ----
+$("fMkt").addEventListener("change",function(){readFile(this,K_MKT);});
+$("fMine").addEventListener("change",function(){readFile(this,K_MINE);});
+$("bClear").addEventListener("click",function(){if(!confirm("Clear both imported files and start over?"))return;STORE.mkt="";STORE.mine="";try{LS.removeItem(K_MKT);LS.removeItem(K_MINE);}catch(e){}EXPANDED={};$("err").textContent="";render();});
+$("out").addEventListener("click",function(e){
+  var tog=e.target.closest("[data-tog]"); if(tog){var k=tog.getAttribute("data-tog");EXPANDED[k]=!EXPANDED[k];render();return;}
+  var cp=e.target.closest("[data-copy]"); if(cp){var v=cp.getAttribute("data-copy");if(navigator.clipboard)navigator.clipboard.writeText(v);cp.textContent="Copied "+v;setTimeout(function(){cp.textContent="Copy underbid";},1400);return;}
+});
+function bindOpt(id,key,evt,get){var el=$(id);if(!el)return;
+  var v=opt(key, key==="onlyUnder"||key==="matchOverall"?true:(key==="exactExp"?false:(id==="rule"?"0.01":(id==="sort"?"under":""))));
+  if(el.type==="checkbox")el.checked=!!v; else el.value=v;
+  el.addEventListener(evt,function(){setOpt(key,get(el));render();});
+}
+bindOpt("q","q","input",function(e){return e.value;});
+bindOpt("sort","sort","change",function(e){return e.value;});
+bindOpt("rule","rule","change",function(e){return e.value;});
+bindOpt("onlyUnder","onlyUnder","change",function(e){return e.checked;});
+bindOpt("exactExp","exactExp","change",function(e){return e.checked;});
+bindOpt("matchOverall","matchOverall","change",function(e){return e.checked;});
+render();
+})();
+</script>
+</body></html>
